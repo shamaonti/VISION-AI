@@ -1,0 +1,70 @@
+import os, cv2, torch, numpy as np
+from deep_sort.detection import Detection
+from deep_sort.feature_extractor import FeatureExtractor
+from deep_sort.tracker import DeepSort
+from action_model.predict import ActionPredictor
+from explainable_ai.grad_cam import GradCAM
+from alerts.send_email import send_email_alert
+from utils.snapshot import save_snapshot
+
+DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
+print('[INFO] Loading YOLOv5 model via torch.hub (requires internet or local YOLOv5).')
+yolo = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True).to(DEVICE)
+yolo.eval()
+
+extractor = FeatureExtractor(device=DEVICE)
+tracker = DeepSort()
+actioner = ActionPredictor(model_path='action_model/action_model.pth', device=DEVICE)
+
+# Setup Grad-CAM (attempt to find a conv layer)
+gradcam = None
+try:
+    target_layer = next((m for m in actioner.model.modules() if m.__class__.__name__.lower().startswith('conv')), None)
+    if target_layer is not None:
+        gradcam = GradCAM(actioner.model, target_layer)
+except Exception as e:
+    print('Grad-CAM setup failed:', e)
+    gradcam = None
+
+cap = cv2.VideoCapture(0)
+print('[INFO] Starting webcam. Press q to quit.')
+while True:
+    ret, frame = cap.read()
+    if not ret: break
+    img = frame[..., ::-1]
+    results = yolo(img)
+    dets = []
+    crops = []
+    if results is not None:
+        for *xyxy, conf, cls in results.xyxy[0].cpu().numpy():
+            if conf < 0.35: continue
+            x1, y1, x2, y2 = map(int, xyxy)
+            w, h = x2 - x1, y2 - y1
+            tlwh = [x1, y1, w, h]
+            crop = frame[y1:y2, x1:x2] if h>0 and w>0 else np.zeros((128,256,3), dtype=np.uint8)
+            crops.append(crop)
+            dets.append((tlwh, float(conf), int(cls)))
+    features = extractor.extract(crops) if len(crops)>0 else []
+    detections = [Detection(tlwh, conf, feat) for (tlwh,conf,cls), feat in zip(dets, features)]
+    tracked = tracker.update(detections, features)
+    for x1,y1,x2,y2, track_id, cls in tracked:
+        x1,y1,x2,y2 = map(int, (x1,y1,x2,y2))
+        crop = frame[y1:y2, x1:x2] if y2>y1 and x2>x1 else np.zeros((128,256,3), dtype=np.uint8)
+        label, conf = actioner.predict(crop)
+        cv2.rectangle(frame, (x1,y1), (x2,y2), (0,255,0), 2)
+        cv2.putText(frame, f"ID:{track_id} {label} {conf:.2f}", (x1, max(15,y1-5)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,255), 2)
+        if label in ('knife','fight_or_theft'):
+            snap = save_snapshot(frame)
+            heatpath = None
+            if gradcam is not None:
+                overlay, cam = gradcam.generate(crop, None)
+                heatpath = save_snapshot(overlay, out_dir='output', prefix=f'heat_{track_id}')
+            try:
+                send_email_alert(f"Suspicious: {label}", f"Detected {label} id {track_id} conf {conf}", attachments=[snap, heatpath])
+            except Exception as e:
+                print('Email failed:', e)
+    cv2.imshow('Vision AI', frame)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+cap.release()
+cv2.destroyAllWindows()

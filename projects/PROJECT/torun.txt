@@ -1,0 +1,4 @@
+activate project
+d:
+cd D:\project\project
+python GUI.py
