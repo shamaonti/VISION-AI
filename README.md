@@ -1,136 +1,135 @@
-# Vision AI 🚨
+# 🔍 Vision AI — Real-Time Suspicious Activity Detection
 
-### Real-Time Suspicious Activity Detection System
-
----
-
-## 📌 Overview
-
-Vision AI is a real-time surveillance system that detects suspicious activities such as theft, violence, or abnormal behavior using computer vision and deep learning. The system processes live video feeds, tracks objects, recognizes actions, and sends alerts with visual evidence.
+A real-time suspicious activity detection system using YOLOv5, Deep SORT, CNN, and Grad-CAM. The system detects suspicious objects/activities, tracks them, and sends automated alerts via Email and WhatsApp with snapshots.
 
 ---
 
-## 🚀 Features
+## 📌 Features
 
-* 🎯 Real-time object detection using YOLOv5
-* 🧍 Multi-object tracking using Deep SORT
-* 🧠 Action recognition using CNN model
-* 🔍 Explainable AI using Grad-CAM heatmaps
-* 📩 Automated email alerts with snapshots
-* 📷 Live webcam/video feed processing
-
----
-
-## 🛠️ Tech Stack
-
-* **Programming Language:** Python
-* **Libraries & Frameworks:**
-
-  * OpenCV
-  * PyTorch
-  * YOLOv5
-  * Deep SORT
-* **Concepts Used:**
-
-  * Computer Vision
-  * Deep Learning
-  * Explainable AI (XAI)
+- 🎯 Real-time object detection using YOLOv5
+- 👤 Multi-person tracking using Deep SORT
+- 🧠 Action recognition using CNN model
+- 🔥 Explainable AI heatmaps using Grad-CAM
+- 📧 Automated alerts via Email with snapshot
+- 📱 WhatsApp alerts with snapshot
+- 🗂️ Supports both webcam and video file input
 
 ---
 
-## 📂 Project Structure
+## ⚠️ Large Files (Download Manually)
 
+These files exceed GitHub's size limit and must be downloaded separately:
+
+### 1. YOLOv3 Weights
+Download from official source:
 ```
-vision_ai/
-├── yolov5/
-├── deep_sort/
-│   ├── detection.py
-│   ├── tracker.py
-│   ├── nn_matching.py
-│   └── feature_extractor.py
-├── action_model/
-│   ├── model.py
-│   └── predict.py
-├── explainable_ai/
-│   └── grad_cam.py
-├── alerts/
-│   └── send_email.py
-├── utils/
-│   └── snapshot.py
-├── output/
-├── main.py
-└── requirements.txt
+https://pjreddie.com/media/files/yolov3.weights
+```
+Place it in:
+```
+projects/PROJECT/yolo-coco/yolov3.weights
+```
+
+### 2. Action Model Checkpoint (`checkpoint.pth`)
+Download from Google Drive:
+```
+[Add your Google Drive link here]
+```
+Place it in:
+```
+projects/vision_aiii/action_model/checkpoint.pth
+```
+
+### 3. Test Video (`test.mp4`)
+You can use any `.mp4` video file for testing.
+Place it in:
+```
+projects/PROJECT/test.mp4
 ```
 
 ---
 
-## ⚙️ Installation
+## 🛠️ Installation
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/shamaonti/VISION-AI.git
+cd VISION-AI
+```
+
+### 2. Create virtual environment
+```bash
+python -m venv venv
+venv\Scripts\activate        # Windows
+source venv/bin/activate     # Mac/Linux
+```
+
+### 3. Install dependencies
+```bash
+pip install -r projects/vision_aiii/requirements.txt
+```
+
+---
+
+## ▶️ How to Run
 
 ```bash
-git clone https://github.com/your-username/vision-ai.git
-cd vision-ai
-pip install -r requirements.txt
-```
-
----
-
-## ▶️ Usage
-
-```bash
+cd projects/vision_aiii
 python main.py
 ```
 
-* The system will start webcam/video processing
-* Detect suspicious activities
-* Send alerts with snapshots
+---
+
+## 📁 Project Structure
+
+```
+projects/
+├── PROJECT/
+│   ├── yolo-coco/
+│   │   ├── coco.names
+│   │   ├── yolov3.cfg
+│   │   └── yolov3.weights        ← Download manually
+│   └── test.mp4                  ← Add your own video
+│
+└── vision_aiii/
+    ├── main.py                   ← Entry point
+    ├── requirements.txt
+    ├── action_model/
+    │   ├── model.py
+    │   ├── predict.py
+    │   └── checkpoint.pth        ← Download manually
+    ├── alerts/
+    │   └── send_email.py
+    ├── deep_sort/
+    │   ├── detection.py
+    │   ├── feature_extractor.py
+    │   ├── nn_matching.py
+    │   └── tracker.py
+    ├── explainable_ai/
+    │   └── grad_cam.py
+    └── data/
+        └── data.yaml
+```
 
 ---
 
-## 📸 Output
+## 🔧 Tech Stack
 
-* Snapshot images stored in `/output`
-* Email alerts with attached evidence
-* Grad-CAM heatmaps for explainability
-
----
-
-## 📧 Alert System
-
-* Sends email notifications when suspicious activity is detected
-* Includes:
-
-  * Captured image
-  * Detection details
+| Technology | Purpose |
+|---|---|
+| Python | Core language |
+| YOLOv5 | Object detection |
+| Deep SORT | Multi-object tracking |
+| CNN | Action recognition |
+| Grad-CAM | Explainable AI heatmaps |
+| OpenCV | Video processing |
+| smtplib | Email alerts |
+| PyWhatKit | WhatsApp alerts |
 
 ---
 
-## 🎯 Applications
+## 👩‍💻 Developer
 
-* Smart surveillance systems
-* Crime detection
-* Security monitoring
-* Public safety systems
-
----
-
-## 👩‍💻 Author
-
-**Shama Bandenavaj Onti**
-
-* Computer Science Engineering Student
-* AI & Full Stack Developer
-
----
-
-## 📌 Future Improvements
-
-* WhatsApp/SMS alerts integration
-* Cloud deployment (AWS)
-* Mobile app integration
-* Advanced behavior prediction
-
----
-
-## ⭐ Conclusion
-
-Vision AI demonstrates how AI can be used for real-time security monitoring by combining object detection, tracking, action recognition, and explainable AI into a single intelligent system.
+**Shama Bandenavaj Onti**  
+📧 shamaonti2@gmail.com  
+🔗 [LinkedIn](https://www.linkedin.com/in/shama-onti) | [GitHub](https://github.com/shamaonti)
